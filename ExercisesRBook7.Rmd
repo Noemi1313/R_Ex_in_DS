@@ -49,7 +49,7 @@ c) 0.50
 d) 0.25
 
 7. If we use a log transformation, which continent shown above has the largest interquartile range?
-**Americas**
+**Asia**
 
 8. Load the height data set and create a vector x with just the male heights:
 ```{r}
