@@ -1,0 +1,64 @@
+---
+title: "R Exercises: Chapter 7 "
+author: "Noemi Carolina Guerra Montiel"
+date: "November 2023"
+output: pdf_document
+---
+
+*From: Introduction to Data Science: Data analysis and prediction algorithms with R by Rafael A.Irizarry*
+
+1. Define variables containing the heights of males and females like this:
+```{r}
+library(dslabs)
+male <- heights$height[heights$sex == "Male"]
+female <- heights$height[heights$sex == "Female"]
+```
+How many measurements do we have for each?
+```{r}
+male_n <- length(male)
+female_n <- length(female)
+c(male_n, female_n)
+```
+2. Suppose we can’t make a plot and want to compare the distributions side by side. We can’t just list all the numbers. Instead, we will look at the percentiles. Create a five row table showing female_percentiles and male_percentiles with the 10th, 30th, 50th, 70th, & 90th percentiles for each sex. Then create a data frame with these two as columns.
+```{r}
+library(data.table)
+categories <- c(0.1, 0.3, 0.5, 0.7, 0.9)
+male_percentiles <- data.table(categories = categories, m_values = quantile(male, categories))
+female_percentiles <- data.table(categories = categories, f_values = quantile(female, categories))
+df <- data.frame(merge(male_percentiles, female_percentiles, by="categories"))
+df
+```
+3. Study the following boxplots showing population sizes by country:
+<center>
+![boxplot_ex](imgs/boxplot-exercise-1)
+</center>
+
+Which continent has the country with the biggest population size?
+**Asia**
+
+4. What continent has the largest median population size?
+**Africa**
+
+5. What is median population size for Africa to the nearest million?
+**10**
+
+6. What proportion of countries in Europe have populations below 14 million?
+a) 0.99
+**b) 0.75**
+c) 0.50
+d) 0.25
+
+7. If we use a log transformation, which continent shown above has the largest interquartile range?
+**Americas**
+
+8. Load the height data set and create a vector x with just the male heights:
+```{r}
+library(dslabs)
+x <- heights$height[heights$sex == "Male"]
+head(x)
+```
+What proportion of the data is between 69 and 72 inches (taller than 69, but shorter or equal to 72)? Hint: use a logical operator and mean.
+```{r}
+mean(x[x > 69 & x < 72]) 
+```
+

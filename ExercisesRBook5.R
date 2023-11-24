@@ -3,6 +3,8 @@
 # Noemi Carolina Guerra Montiel
 # November 2023
 
+# From: Introduction to Data Science: Data analysis and prediction algorithms with R by Rafael A.Irizarry
+
 ########## CHAPTER 5.3
 # 1. Use the read_csv function to read each of the files that the following 
 # code saves in the files object:
@@ -50,3 +52,4 @@ names(dat)
 # Use the readLines function to read in just the first line (we later learn 
 # how to extract values from the output).
 readLines(paste(path,"/olive.csv", sep=''), n=1)
+
