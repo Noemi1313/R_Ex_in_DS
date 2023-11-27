@@ -1,5 +1,5 @@
 ---
-title: "R Exercises: Chapter 7 "
+title: "R Exercises: Chapter 7"
 author: "Noemi Carolina Guerra Montiel"
 date: "November 2023"
 output: pdf_document
