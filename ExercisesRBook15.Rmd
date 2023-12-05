@@ -1,0 +1,122 @@
+---
+title: "R Exercises: Chapter 15"
+author: "Noemi Carolina Guerra Montiel"
+date: "2023-12"
+output: pdf_document
+---
+
+*From: Introduction to Data Science: Data analysis and prediction algorithms with R by Rafael A.Irizarry*
+
+1. Visit the following web page: https://web.archive.org/web/20181024132313/http://www.stevetheump.com/Payrolls.htm
+
+Notice there are several tables. Say we are interested in comparing the payrolls of teams across the years. The next few exercises take us through the steps needed to do this.
+
+Start by applying what you learned to read in the website into an object called h.
+
+```{r}
+library(tidyverse)
+library(rvest)
+url <- paste0("https://web.archive.org/web/20181024132313/http://www.stevetheump.com/Payrolls.htm")
+h <- read_html(url)
+```
+
+
+2. Note that, although not very useful, we can actually see the content of the page by typing:
+
+```{r}
+html_text(h)
+```
+
+The next step is to extract the tables. For this, we can use the html_nodes function. We learned that tables in html are associated with the table node. Use the html_nodes function and the table node to extract the first table. Store it in an object nodes.
+
+```{r}
+nodes <- h |> html_nodes("table")
+```
+
+
+3. The html_nodes function returns a list of objects of class xml_node. 
+```{r}
+class(nodes)
+```
+We can see the content of each one using, for example, the html_text function. You can see the content for an arbitrarily picked component like this:
+```{r}
+html_text(nodes[[8]])
+```
+```{r}
+html_table(nodes[[8]])
+```
+
+4. Repeat the above for the first 4 components of nodes. Which of the following are payroll tables:
+
+a. All of them.
+b. 1
+c. 2
+d. **2-4**
+
+```{r}
+print(html_table(nodes[[1]]))
+print(html_table(nodes[[2]]))
+print(html_table(nodes[[3]]))
+print(html_table(nodes[[4]]))
+```
+
+5. Repeat the above for the first last 3 components of nodes. Which of the following is true:
+
+a. **The last entry in nodes shows the average across all teams through time, not payroll per team.**
+b. All three are payroll per team tables.
+c. All three are like the first entry, not a payroll table.
+d. All of the above.
+
+
+```{r}
+n = length(nodes)
+print(html_table(nodes[[n]]))
+print(html_table(nodes[[n-1]]))
+print(html_table(nodes[[n-2]]))
+```
+
+6. We have learned that the first and last entries of nodes are not payroll tables. Redefine nodes so that these two are removed.
+```{r}
+n = length(nodes)
+filtered_nodes <- nodes[-c(1, n)]
+```
+
+
+7. We saw in the previous analysis that the first table node is not actually a table. This happens sometimes in html because tables are used to make text look a certain way, as opposed to storing numeric values. Remove the first component and then use sapply and html_table to convert each node in nodes into a table. Note that in this case, sapply will return a list of tables. You can also use lapply to assure that a list is applied.
+```{r}
+tables <- sapply(filtered_nodes, function(node) html_table(node)[[1]])
+tables
+```
+
+8. Look through the resulting tables. Are they all the same? Could we just join them with bind_rows?
+**Yes**
+
+9. Create two tables, call them tab_1 and tab_2 using entries 10 and 19.
+```{r}
+tab_1 <- tables[10]
+tab_2 <- tables[19]
+print(tab_1)
+print(tab_2)
+```
+
+10. Use a full_join function to combine these two tables. Before you do this you will have to fix the missing header problem. You will also need to make the names match.
+
+```{r}
+tab_1 <- data.frame(tab_1[[1]][-1])
+colnames(tab_1) <- "Team"
+tab_2 <- data.frame(tab_2[[1]][-1])
+colnames(tab_2) <- "Team"
+full_join(tab_1, tab_2, by = "Team")
+```
+
+11. After joining the tables, you see several NAs. This is because some teams are in one table and not the other. Use the anti_join function to get a better idea of why this is happening.
+```{r}
+anti_join(tab_1, tab_2, by = "Team")
+```
+
+12. We see see that one of the problems is that Yankees are listed as both N.Y. Yankees and NY Yankees. In the next section, we will learn efficient approaches to fixing problems like this. Here we can do it “by hand” as follows:
+```{r}
+tab_1 <- tab_1 |>
+  mutate(Team = ifelse(Team == "N.Y. Yankees", "NY Yankees", Team))
+```
+

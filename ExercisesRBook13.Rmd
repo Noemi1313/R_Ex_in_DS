@@ -1,0 +1,66 @@
+---
+title: 'R Exercises: Chapter 13'
+author: "Noemi Carolina Guerra Montiel"
+date: "2023-12"
+output: pdf_document
+---
+
+*From: Introduction to Data Science: Data analysis and prediction algorithms with R by Rafael A.Irizarry*
+
+In the previous exercise section, we wrangled data from a PDF file containing vital statistics from Puerto Rico. We did this for the month of September. Below we include code that does it for all 12 months.
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(purrr)
+library(pdftools)
+library(dslabs)
+
+fn <- system.file("extdata", "RD-Mortality-Report_2015-18-180531.pdf",
+                  package="dslabs")
+dat <- map_df(str_split(pdf_text(fn), "\n"), function(s){
+  s <- str_trim(s)
+  header_index <- str_which(s, "2015")[1]
+  tmp <- str_split(s[header_index], "\\s+", simplify = TRUE)
+  month <- tmp[1]
+  header <- tmp[-1]
+  tail_index  <- str_which(s, "Total")
+  n <- str_count(s, "\\d+")
+  out <- c(1:header_index, which(n == 1), 
+           which(n >= 28), tail_index:length(s))
+  s[-out] |>  str_remove_all("[^\\d\\s]") |> str_trim() |>
+    str_split_fixed("\\s+", n = 6) |> as_tibble() |> 
+    setNames(c("day", header)) |>
+    mutate(month = month, day = as.numeric(day)) |>
+    pivot_longer(-c(day, month), names_to = "year", values_to = "deaths") |>
+    mutate(deaths = as.numeric(deaths))
+}) |>
+  mutate(month = recode(month, 
+                        "JAN" = 1, "FEB" = 2, "MAR" = 3, 
+                        "APR" = 4, "MAY" = 5, "JUN" = 6, 
+                        "JUL" = 7, "AGO" = 8, "SEP" = 9, 
+                        "OCT" = 10, "NOV" = 11, "DEC" = 12)) |>
+  mutate(date = make_date(year, month, day)) |>
+  filter(date <= "2018-05-01")
+
+```
+
+1. We want to make a plot of death counts versus date. Confirm that the date variable are in fact dates and not strings.
+
+
+2. Plot deaths versus date.
+```{r}
+measles |> ggplot(aes(x = date, y = cases)) + geom_line()
+```
+
+3. What time period is represented in these data?
+- years
+
+5. Repeat the plot but use the day of the year on the x-axis instead of date.
+
+
+6. Compute the deaths per day by month.
+
+7. Show the deaths per days for July and for September. What do you notice?
+
+8. Compute deaths per week and make a plot.
